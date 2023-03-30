@@ -21,7 +21,7 @@ export const isValidToken = (accessToken) => {
     return decodedToken.exp > currentTime;
 };
 
-const roleOfUser = (accessToken) => {
+export const roleOfUser = (accessToken) => {
     if (!accessToken) {
         return false;
     }
@@ -59,6 +59,7 @@ const reducer = (state, action) => {
             };
         }
         case 'LOGOUT': {
+            TokenService.removeAccessToken();
             return {
                 ...state,
                 isAuthenticated: false,
@@ -84,20 +85,24 @@ const AuthContext = createContext({
     ...initialState,
     method: 'JWT',
     login: () => Promise.resolve(),
-    logout: () => {},
+    logout: () => Promise.resolve(),
     // register: () => Promise.resolve(),
 });
 
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    var errorMessage;
     const login = async (account) => {
+        TokenService.removeAccessToken();
         const response_login = await axios
             .post(process.env.REACT_APP_URL + 'un/login', account)
-            .catch((error) => console.log(error));
-        const { error, access_token } = response_login.data;
-        if (response_login.data && error) {
-            return response_login.data;
+            .catch(({ response }) => (errorMessage = response.data));
+
+        if (errorMessage && !response_login) {
+            return errorMessage;
         }
+        const { access_token } = response_login.data;
+
         const role = response_login.data.roles[0].authority;
         if (
             role === 'SUPER_ADMIN' ||
@@ -151,13 +156,18 @@ export const AuthProvider = ({ children }) => {
     // };
 
     const logout = () => {
+        console.log(2);
+        axios
+            .post(process.env.REACT_APP_URL + 'un/logout')
+            .then((res) => console.log(res.data))
+            .catch((error) => console.log(error));
         dispatch({ type: 'LOGOUT' });
     };
 
     useEffect(() => {
         (async () => {
             try {
-                const rs = await axios.post(
+                const rs = await axios.get(
                     process.env.REACT_APP_URL + 'un/refresh-token',
                 );
                 TokenService.setCookieAccessToken(rs.data.access_token);
@@ -167,11 +177,17 @@ export const AuthProvider = ({ children }) => {
                         roleOfUser(access_token) === 'SUPER_ADMIN' ||
                         roleOfUser(access_token) === 'ADMIN'
                     ) {
+                        const response = await axios.get(
+                            process.env.REACT_APP_URL + 'user/info',
+                        );
+
+                        const fullName = response.data.full_name;
+
                         dispatch({
                             type: 'INIT',
                             payload: {
                                 isAuthenticated: true,
-                                // fullName,
+                                fullName,
                                 role: roleOfUser(access_token),
                             },
                         });
