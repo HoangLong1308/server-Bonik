@@ -25,6 +25,7 @@ import {
 import DialogConfirm from './DialogConfirm';
 import axios from 'axios.js';
 import { v4 as uuidv4 } from 'uuid';
+import NumericFormatCustom from '../NumericFormatCustom';
 function DialogProductVariant({
     open,
     products = {},
@@ -189,7 +190,7 @@ function DialogProductVariant({
             };
         });
     };
-
+    console.log(formProductVariant);
     return (
         <Box>
             <Dialog
@@ -244,7 +245,7 @@ function DialogProductVariant({
                                 margin="dense"
                                 id="name"
                                 label="Số lượng"
-                                type="text"
+                                type="number"
                                 fullWidth
                                 value={formProductVariant.quantity || ''}
                                 onChange={(e) => {
@@ -256,7 +257,7 @@ function DialogProductVariant({
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            {/* <TextField
                                 autoFocus
                                 margin="dense"
                                 id="name"
@@ -270,6 +271,24 @@ function DialogProductVariant({
                                         'price',
                                     );
                                 }}
+                            /> */}
+                            <TextField
+                                label="Giá"
+                                value={formProductVariant.price || ''}
+                                onChange={(e) => {
+                                    handleChangeForm(
+                                        e.target.value || '',
+                                        'price',
+                                    );
+                                }}
+                                fullWidth
+                                name="numberformat"
+                                id="formatted-numberformat-input"
+                                InputProps={{
+                                    inputComponent: NumericFormatCustom,
+                                }}
+                                helperText=""
+                                margin="dense"
                             />
                         </Grid>
                     </Grid>
@@ -287,6 +306,9 @@ function DialogProductVariant({
                                     },
                                     ...color.colorFilter,
                                 ]}
+                                isOptionEqualToValue={(option, value) =>
+                                    option.id === value.id
+                                }
                                 // getOptionLabel={(option) => option.brand_name}
                                 getOptionLabel={(option) =>
                                     typeof option === 'string'
@@ -336,6 +358,9 @@ function DialogProductVariant({
                                     typeof option === 'string'
                                         ? option ?? ''
                                         : option.storage_name ?? ''
+                                }
+                                isOptionEqualToValue={(option, value) =>
+                                    option.id === value.id
                                 }
                                 value={
                                     Object.keys(storage.storageSelected)
