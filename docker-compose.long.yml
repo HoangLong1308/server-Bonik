@@ -10,8 +10,7 @@ services:
       - 8080:8080
     # restart: always
     networks:
-      network:
-        name: bonik-network
+      - bonik-network
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/electronic_db
       - SPRING_DATASOURCE_USERNAME=root
