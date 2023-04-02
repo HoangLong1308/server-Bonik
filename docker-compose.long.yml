@@ -17,12 +17,12 @@ services:
       - SPRING_PROFILES_active=
     image: backend
     networks:
-      -bonik-network
+      - network1
     container_name: backend-container
     stdin_open: true
     tty: true
     
 networks:
-  bonik-network:
-    external:
-      name: bonik-network
+  network1:
+    name: bonik-network
+    external: true
