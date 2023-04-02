@@ -11,10 +11,10 @@ services:
     # restart: always
     
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/electronic_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=Bello1308
-      - SPRING_PROFILES_active=
+       SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/electronic_db
+       SPRING_DATASOURCE_USERNAME: root
+       SPRING_DATASOURCE_PASSWORD: Bello1308
+       SPRING_PROFILES_active: 
     image: backend
     networks:
       - network1
