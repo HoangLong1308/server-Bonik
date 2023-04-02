@@ -9,6 +9,8 @@ services:
     ports:
       - 8080:8080
     # restart: always
+    networks:
+      - bonik-network
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/electronic_db
       - SPRING_DATASOURCE_USERNAME=root
@@ -17,6 +19,6 @@ services:
     image: backend
     container_name: backend-container
     stdin_open: true
-    networks:
-      - host
     tty: true
+    
+
