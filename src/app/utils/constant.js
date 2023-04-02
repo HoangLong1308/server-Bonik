@@ -3,19 +3,19 @@ export const sideNavWidth = 260;
 export const navbarHeight = 60;
 export const sidenavCompactWidth = 80;
 export const containedLayoutWidth = 1200;
-export const tableHeader = [
+export const accountTableHeader = [
+    'Tên tài khoản',
     'Họ và tên',
+    'Số điện thoại',
     'Email',
-    'Phone',
-    'Ngày tạo',
-    'Ngày cập nhật',
+    'Role',
 ];
 
 export const orderTableHeader = [
     'Họ và tên',
-    'Email',
-    'Phone',
+    'Đia chỉ',
     'Thời gian',
+    "Thanh toán",
     'Trạng thái',
 ];
 export const productTableHeader = [

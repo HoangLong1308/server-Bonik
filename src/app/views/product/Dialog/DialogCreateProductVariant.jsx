@@ -25,6 +25,12 @@ import {
 import DialogConfirm from './DialogConfirm';
 import axios from 'axios.js';
 import { v4 as uuidv4 } from 'uuid';
+import NumericFormatCustom from '../NumericFormatCustom';
+
+NumericFormatCustom.propTypes = {
+    name: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+};
 function DialogCreateProductVariant({
     open,
     products = {},
@@ -81,7 +87,6 @@ function DialogCreateProductVariant({
     } = props;
 
     useEffect(() => {
-        console.log('reload');
         getAllColor();
         getAllStorage();
         setImage(
@@ -120,8 +125,9 @@ function DialogCreateProductVariant({
     };
 
     const checkErrorMessage = (errorMessage) => {
-        if (errorMessage) {
-            setMessageSnackbar(errorMessage);
+        if (Object.keys(errorMessage).length > 0) {
+            setMessageSnackbar(errorMessage.message);
+
             setTypeOfSeverity('error');
             setLoad(false);
             setOpenSnackBar(true);
@@ -132,7 +138,7 @@ function DialogCreateProductVariant({
     };
     const handleConfirmUpdate = async () => {
         setLoad(true);
-        var errorMessage;
+        var errorMessage = {};
         var productVariantResponse = {};
         await axios
             .post(
@@ -140,11 +146,14 @@ function DialogCreateProductVariant({
                 formProductVariant,
             )
             .then((res) => (productVariantResponse = res.data))
-            .catch((error) => (errorMessage = error));
-        console.log(productVariantResponse);
+            .catch(({ response }) => {
+                errorMessage = {
+                    statusCode: response.status,
+                    message: response.data,
+                };
+            });
 
         try {
-            console.log(file);
             let blob = file.slice(0, file.size, 'image/png');
             let newFile = new File([blob], productVariantResponse.image, {
                 type: 'image/png',
@@ -160,8 +169,11 @@ function DialogCreateProductVariant({
                 .then((response) => {
                     // console.log(response.data);
                 })
-                .catch((error) => {
-                    errorMessage = error;
+                .catch(({ response }) => {
+                    errorMessage = {
+                        statusCode: response.status,
+                        message: response.data,
+                    };
                 });
         } catch (error) {
             console.log('upload file dialogcreate productvariant : ' + error);
@@ -245,7 +257,7 @@ function DialogCreateProductVariant({
                                 margin="dense"
                                 id="number"
                                 label="Số lượng"
-                                type="text"
+                                type="number"
                                 fullWidth
                                 value={formProductVariant.quantity || ''}
                                 onChange={(e) => {
@@ -254,14 +266,15 @@ function DialogCreateProductVariant({
                                         'quantity',
                                     );
                                 }}
+                                helperText=" "
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            {/* <TextField
                                 margin="dense"
                                 id="name"
                                 label="Giá"
-                                type="number"
+                                type="text"
                                 fullWidth
                                 value={formProductVariant.price || ''}
                                 onChange={(e) => {
@@ -270,6 +283,24 @@ function DialogCreateProductVariant({
                                         'price',
                                     );
                                 }}
+                            /> */}
+                            <TextField
+                                label="Giá"
+                                value={formProductVariant.price || ''}
+                                onChange={(e) => {
+                                    handleChangeForm(
+                                        e.target.value || '',
+                                        'price',
+                                    );
+                                }}
+                                fullWidth
+                                name="numberformat"
+                                id="formatted-numberformat-input"
+                                InputProps={{
+                                    inputComponent: NumericFormatCustom,
+                                }}
+                                helperText=""
+                                margin="dense"
                             />
                         </Grid>
                     </Grid>
@@ -292,6 +323,9 @@ function DialogCreateProductVariant({
                                     typeof option === 'string'
                                         ? option ?? ''
                                         : option.color_name ?? ''
+                                }
+                                isOptionEqualToValue={(option, value) =>
+                                    option.id === value.id
                                 }
                                 value={
                                     Object.keys(color.colorSelected).length ===
@@ -327,6 +361,9 @@ function DialogCreateProductVariant({
                                     typeof option === 'string'
                                         ? option ?? ''
                                         : option.storage_name ?? ''
+                                }
+                                isOptionEqualToValue={(option, value) =>
+                                    option.id === value.id
                                 }
                                 value={
                                     Object.keys(storage.storageSelected)

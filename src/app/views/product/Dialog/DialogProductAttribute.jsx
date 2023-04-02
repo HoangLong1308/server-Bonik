@@ -11,7 +11,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ButtonProduct from '../ButtonProduct';
 import {
     addIdToStore,
@@ -26,10 +26,16 @@ import { Snackbar } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import DialogConfirm from './DialogConfirm';
 
-function DialogProductAttribute({ open, productAttributeList, handleClose }) {
+function DialogProductAttribute({
+    open,
+    productAttributeList,
+    handleClose,
+    idProduct,
+}) {
     const [openConfirm, setOpenConfirm] = useState(false);
     const [openSnackBar, setOpenSnackBar] = useState(false);
     const productAttribute = useSelector((state) => state.productAttribute);
+    const [reload, setReload] = useState(true);
     const dispatch = useDispatch();
 
     const handleClickOpenConfirm = () => {
@@ -50,6 +56,7 @@ function DialogProductAttribute({ open, productAttributeList, handleClose }) {
         dispatch(updateProductAttribute(productAttribute.data));
         setOpenSnackBar(true);
         setOpenConfirm(false);
+        setReload(!reload);
     };
 
     const handleCloseSnackBar = (event, reason) => {
@@ -61,25 +68,30 @@ function DialogProductAttribute({ open, productAttributeList, handleClose }) {
     const [formAttribute, setFormAttribute] = useState({
         attribute_name: '',
         attribute_value: '',
-        product_id: productAttribute.idProduct,
+        product_id: idProduct,
     });
     const handleAddFormAttribute = (e, name) => {
         setFormAttribute((pre) => ({
             ...pre,
             [name]: e.target.value,
-            product_id: productAttribute.idProduct,
+            product_id: idProduct,
         }));
     };
-    const handleClickCreateAttribute = () => {
+    const handleClickCreateAttribute = async () => {
         const check = checkValidation(formAttribute);
         if (check) {
             return;
         }
         dispatch(createProductAttribute(formAttribute));
-        dispatch(getProductAttribute(productAttribute.idProduct));
+        setReload(!reload);
+        // dispatch(getProductAttribute(productAttribute.idProduct));
 
         clearFormProductAttribute();
     };
+    useEffect(() => {
+        dispatch(getProductAttribute(idProduct));
+        // eslint-disable-next-line
+    }, [reload]);
     const clearFormProductAttribute = () => {
         setFormAttribute((pre) => ({
             ...pre,
@@ -92,7 +104,7 @@ function DialogProductAttribute({ open, productAttributeList, handleClose }) {
             attribute_name: false,
             attribute_value: false,
         }));
-        dispatch(getProductAttribute(productAttribute.idProduct));
+        dispatch(getProductAttribute(idProduct));
     };
 
     const [validate, setValidate] = useState({

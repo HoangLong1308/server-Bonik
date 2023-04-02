@@ -1,13 +1,47 @@
 import axios from 'axios';
-
-const axiosInstance = axios.create();
-
+import TokenService from 'app/service/tokenService';
+import { roleOfUser } from 'app/contexts/JWTAuthContext';
+const axiosInstance = axios.create({
+    withCredentials: true,
+});
 axiosInstance.interceptors.response.use(
-    (response) => response,
-    (error) =>
-        Promise.reject(
-            (error.response && error.response.data) || 'Something went wrong!',
-        ),
+    (res) => {
+        return res;
+    },
+    async (err) => {
+        const originalConfig = err.config;
+
+        if (originalConfig.url !== '/un/login' && err.response) {
+            // Access Token was expired
+            if (err.response.status === 403) {
+                window.location.reload('');
+                return;
+            }
+            if (err.response.status === 401 && !originalConfig._retry) {
+                originalConfig._retry = true;
+                try {
+                    const rs = await axiosInstance
+                        .get(process.env.REACT_APP_URL + 'un/refresh-token')
+                        .catch((error) => {
+                            window.location.reload(''); //handle when refreshtoken expired
+                        });
+                    console.log(roleOfUser(rs.data.access_token));
+                    // if (
+                    //     !rs.data.access_token
+                    // ) {
+                    //     window.location.reload('');
+                    // }
+                    TokenService.setCookieAccessToken(rs.data.access_token);
+
+                    return axiosInstance(originalConfig);
+                } catch (_error) {
+                    return Promise.reject(_error);
+                }
+            }
+        }
+
+        return Promise.reject(err);
+    },
 );
 
 export default axiosInstance;

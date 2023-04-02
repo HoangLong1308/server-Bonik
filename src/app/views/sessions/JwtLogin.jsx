@@ -59,6 +59,7 @@ const JwtLogin = () => {
 
     const handleFormSubmit = async (values) => {
         let { userName, password } = values;
+
         let newObject = { userName: userName, password: password };
         setLoading(true);
         try {

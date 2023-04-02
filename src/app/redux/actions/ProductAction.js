@@ -7,8 +7,28 @@ export const DELETE_PRODUCT = 'deleteProduct';
 export const GET_PRODUCT_BYID = 'getProductById';
 export const PUT_PRODUCT = 'putProduct';
 export const POST_PRODUCT = 'postProduct';
+export const SET_PAGE_PRODUCT = 'setPageProduct';
+export const SET_STATE_DELETED = 'setStateDeleted';
+export const HANDLE_CHANGE_KEYSEARCH = 'handleChangeKeysearch';
+export const GET_PRODUCTS_FILTERS = 'getProductsFilters';
 
-export const getProductsList = (size, page) => async (dispatch) => {
+export const getProductsList = (size, page) => async (dispatch, getState) => {
+    if (
+        getState().products.stateDeleted.deleted !== -1 ||
+        getState().products.keysearch !== ''
+    ) {
+        dispatch(
+            getProductsFilters(
+                5,
+                page,
+                getState().products.keysearch,
+                getState().products.stateDeleted.deleted,
+            ),
+        );
+
+        return;
+    }
+
     await axios
         .get(
             process.env.REACT_APP_BASE_URL +
@@ -24,6 +44,27 @@ export const getProductsList = (size, page) => async (dispatch) => {
             });
         });
 };
+export const getProductsFilters =
+    (size, page, search, isDeleted) => async (dispatch) => {
+        await axios
+            .get(
+                process.env.REACT_APP_BASE_URL +
+                    'product/search?size=' +
+                    size +
+                    '&page=' +
+                    page +
+                    '&search=' +
+                    search +
+                    '&isDelete=' +
+                    isDeleted,
+            )
+            .then((res) => {
+                dispatch({
+                    type: GET_PRODUCTS_FILTERS,
+                    payload: res.data.data,
+                });
+            });
+    };
 export const getProductById = (id) => (dispatch) => {
     axios.get(process.env.REACT_APP_BASE_URL + 'product/' + id).then((res) =>
         dispatch({
@@ -77,28 +118,28 @@ export const StatusDisable = (bool) => {
         payload: bool,
     };
 };
-// export const getProductVariant = (size, page, id) => (dispatch) => {
-//     axios
-//         .get(
-//             process.env.REACT_APP_BASE_URL +
-//                 'product-variant/' +
-//                 id +
-//                 '?size=' +
-//                 size +
-//                 '&page=' +
-//                 page,
-//         )
-//         .then((res) => {
-//             dispatch({
-//                 type: LIST_PRODUCT_VARIANT,
-//                 payload: res.data,
-//             });
-//         });
-// };
 export const changeStateTable = (state) => {
     return {
         type: CHANGE_STATE_TABLE,
         payload: state,
+    };
+};
+export const setStateDeleted = (state) => {
+    return {
+        type: SET_STATE_DELETED,
+        payload: state,
+    };
+};
+export const setPageProduct = (pageNumber) => {
+    return {
+        type: SET_PAGE_PRODUCT,
+        payload: pageNumber,
+    };
+};
+export const handleChangeKeysearch = (keysearch) => {
+    return {
+        type: HANDLE_CHANGE_KEYSEARCH,
+        payload: keysearch,
     };
 };
 
