@@ -17,7 +17,6 @@ services:
     image: backend
     container_name: backend-container
     stdin_open: true
+    networks:
+      - host
     tty: true
-
-  networks:
-    host:
