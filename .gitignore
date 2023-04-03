@@ -33,3 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 /logs/spring-boot-logger.log
+.DS_Store

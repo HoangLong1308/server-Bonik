@@ -9,8 +9,11 @@ services:
     ports:
       - 8080:8080
     image: backend
+    networks:
+      - network1
     container_name: backend-container
     stdin_open: true
     tty: true
 
 #
+
