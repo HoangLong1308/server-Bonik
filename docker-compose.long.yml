@@ -9,6 +9,13 @@ services:
     ports:
       - 8080:8080
     image: backend
+    networks:
+      - network1
     container_name: backend-container
     stdin_open: true
     tty: true
+    
+networks:
+  network1:
+    name: bonik-network
+    external: true
