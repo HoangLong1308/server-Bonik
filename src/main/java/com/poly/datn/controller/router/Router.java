@@ -30,6 +30,8 @@ public class Router {
 
         public static final String LOGOUT = "/logout";
         public static final String TOKEN_LOGIN_GOOGLE = "/token-login-google";
+
+        public static final String PAY_METHOD = "/paymethod";
     }
 
     public static class USER_API{
